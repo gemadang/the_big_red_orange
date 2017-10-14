@@ -1,46 +1,67 @@
 #include <IRremote.h>
+#include <Servo.h>
+
  
-#define up_key  5355
-#define left_key  29835
-#define right_key  21675
+#define up_key  41565
+#define rocket_key 53295
+#define left_key  57885
+#define right_key  4845
+#define down_key  25245
 #define repeat_key  65535
 
-int receiver_pin = 8;   
-
-int first_led_pin = 7;
-int second_led_pin = 6;
-int third_led_pin = 5;
-int fourth_led_pin = 4;
-
-int led[] = {0,0,0,0}; 
+int receiver_pin = 12;   
+int pin = 7;
 IRrecv receiver(receiver_pin); 
 decode_results output;
- 
+
+Servo myservo; 
+
+int pos;
+int max = 110;
+int min = 70;
+
 void setup()
 {
   Serial.begin(9600);
+  myservo.attach(4);  // attaches the servo on pin to the servo object
   receiver.enableIRIn();  
-  /*
-   * pinMode(first_led_pin, OUTPUT);
-  pinMode(second_led_pin, OUTPUT);
-  pinMode(third_led_pin, OUTPUT);
-  pinMode(fourth_led_pin, OUTPUT);
-   */
+
+  //pos = 90;    // variable to store the servo position
+  pos = 0;
+  
 }
 void up(){
-  
+  //motorruns
 }
-void left(){
+
+int left(int pos){
+   Serial.println("in left");
+   int i;
+   for (i = 0; i <= 5; i += 1){
+    pos = pos + 1;
+ 
+    myservo.write(pos);
   
+   }
+  return pos;
 }
-void right(){
-  
+int right(int pos){
+  Serial.println("in right");
+  int i;
+   for (i = 5; i>= 0; i -= 1){
+    pos = pos - 1;
+    
+    myservo.write(pos);
+   }
+  return pos;
 }
+
 void loop() {
   //save_state =
+  //int pos = 0;
+  
   if (receiver.decode(&output)) {
     unsigned int value = output.value;
-    char key_code = "default";
     switch(value) {
        case up_key: 
          Serial.println("up");
@@ -48,11 +69,23 @@ void loop() {
          break; 
        case left_key:
          Serial.println("left");
-         left()
-          break;
+         if (pos<max-5){
+          pos = left(pos);
+          Serial.print("this is the ");
+          Serial.println(pos);
+         }
+         break;
        case right_key:
          Serial.println("right");
-         right()
+         if (pos>min+5){
+          pos = right(pos);
+          Serial.print("this is the ");
+          Serial.println(pos);
+         }
+       case rocket_key:
+        pinMode(pin,OUTPUT);
+        digitalWrite(pin,HIGH);
+        break;
        case repeat_key:
          //key_code = value;
          /*
@@ -69,11 +102,11 @@ void loop() {
         default:
           break;        
     }
-    
+    Serial.println(value);
     //Serial.println(value); 
  
-    //Serial.println(key_code); 
-   
+    
     receiver.resume(); 
   }
 }
+
